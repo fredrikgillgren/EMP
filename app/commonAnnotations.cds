@@ -16,14 +16,12 @@ annotate my.Employees with @(
       ID,
       name,
       email,
-      addresses
+      designation
     ],
     LineItem        : [
-      { Value: ID, Label: '{i18n>EmployeeID}' },
       { Value: name, Label: '{i18n>Name}' },
       { Value: email, Label: '{i18n>Email}' },
-      { Value: addresses.street, Label: '{i18n>Street}' },
-      { Value: addresses.city, Label: '{i18n>City}' }
+      { Value: designation, Label: '{i18n>Designation}' }
     ]
   }
 ) {
@@ -32,7 +30,7 @@ annotate my.Employees with @(
     Text: name,
     TextArrangement : #TextOnly
   };
-  addresses @ValueList.entity : 'Addresses';
+  project @ValueList.entity : 'Projects'; 
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -42,8 +40,8 @@ annotate my.Employees with @(
 annotate my.Employees with @(UI : {HeaderInfo : {
   TypeName       : '{i18n>Employee}',
   TypeNamePlural : '{i18n>Employees}',
-  Title          : { Value: name },
-  Description    : { Value: email }
+  Title          : { Value: name, Label: '{i18n>Name}' },
+  Description    : { Value: designation , Label: '{i18n>Designation}' }
 }, });
 
 ////////////////////////////////////////////////////////////////////////////
@@ -57,7 +55,6 @@ annotate my.Employees with {
   addresses      @title: '{i18n>Addresses}' @Common: { Text: addresses.city, TextArrangement: #TextOnly };
   project        @title: '{i18n>Project}' @Common: { Text: project.title, TextArrangement: #TextOnly };
   role           @title: '{i18n>Role}'   @Common: { Text: role.name, TextArrangement: #TextOnly };
-  profilePicture @title: '{i18n>ProfilePicture}' @UI.LineItem: { Value: profilePicture, Label: '{i18n>ProfilePicture}' };
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -68,18 +65,14 @@ annotate my.Projects with @(
   Common.SemanticKey : [ID],
   UI                 : {
     Identification  : [{ Value: title }],
-    SelectionFields : [
-      title,
-      startDate,
-      endDate,
-      location
-    ],
+    SelectionFields : [title],
     LineItem        : [
       { Value: ID, Label: '{i18n>ProjectID}' },
       { Value: title, Label: '{i18n>Title}' },
       { Value: startDate, Label: '{i18n>StartDate}' },
       { Value: endDate, Label: '{i18n>EndDate}' },
-      { Value: location, Label: '{i18n>Location}' }
+      { Value: location, Label: '{i18n>Location}' },
+      { Value: description, Label: '{i18n>Description}' }
     ]
   }
 ) {
@@ -98,8 +91,12 @@ annotate my.Projects with @(UI : {HeaderInfo : {
   TypeName       : '{i18n>Project}',
   TypeNamePlural : '{i18n>Projects}',
   Title          : { Value: title },
-  Description    : { Value: location }
-}, });
+  Description    : { Value: desciption }
+}, 
+  Facets : [{
+    $Type: 'UI.ReferenceFacet',  Target: 'employee/@UI.LineItem'
+  },],
+});
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -121,16 +118,22 @@ annotate my.Projects with {
 annotate my.Addresses with @(
   Common.SemanticKey : [ID],
   UI                 : {
-    SelectionFields : [street, city, state, country],
+    Identification  : [{ Value: ID }],
+    SelectionFields : [ID],
     LineItem        : [
-      { Value: ID, Label: '{i18n>AddressID}' },
       { Value: street, Label: '{i18n>Street}' },
       { Value: city, Label: '{i18n>City}' },
       { Value: state, Label: '{i18n>State}' },
       { Value: country, Label: '{i18n>Country}' }
     ]
   }
-);
+) {
+  ID @Common: {
+    SemanticObject : 'Addresses',
+    Text: street,
+    TextArrangement : #TextOnly
+  };
+};
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -141,7 +144,11 @@ annotate my.Addresses with @(UI : {HeaderInfo : {
   TypeNamePlural : '{i18n>Addresses}',
   Title          : { Value: street },
   Description    : { Value: city }
-}, });
+},
+  Facets : [{
+    $Type: 'UI.ReferenceFacet',  Target: 'employee/@UI.LineItem'
+  },], 
+});
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -152,8 +159,8 @@ annotate my.Addresses with {
   street   @title: '{i18n>Street}';
   city     @title: '{i18n>City}';
   state    @title: '{i18n>State}';
-  zipCode  @title: '{i18n>ZipCode}';
   country  @title: '{i18n>Country}';
+  employee @title: '{i18n>Employee}' @Common: { Text: employee.name, TextArrangement: #TextOnly };
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -161,13 +168,12 @@ annotate my.Addresses with {
 //	Roles Lists
 //
 annotate my.Roles with @(
-  Common.SemanticKey : [ID],
+  Common.SemanticKey : [name],
   UI                 : {
     SelectionFields : [name],
     LineItem        : [
-      { Value: ID, Label: '{i18n>RoleID}' },
-      { Value: name, Label: '{i18n>RoleName}' },
-      { Value: parent.name, Label: '{i18n>ParentRole}' }
+      { Value: name, Label: '{i18n>Role Name}' },
+      { Value: parent.name, Label: '{i18n>Parent Role}' }
     ]
   }
 );
@@ -176,12 +182,19 @@ annotate my.Roles with @(
 //
 //	Roles Details
 //
-annotate my.Roles with @(UI : {HeaderInfo : {
-  TypeName       : '{i18n>Role}',
-  TypeNamePlural : '{i18n>Roles}',
-  Title          : { Value: name },
-  Description    : { Value: ID }
-}, });
+annotate my.Roles with @(UI : {
+  Identification : [{ Value: name }],
+  HeaderInfo     : {
+    TypeName       : '{i18n>Role}',
+    TypeNamePlural : '{i18n>Roles}',
+    Title          : { Value: name },
+    Description    : { Value: ID }
+  },
+  Facets         : [{
+    $Type: 'UI.ReferenceFacet', Label: '{i18n>SubRoles}', Target: 'children/@UI.LineItem'
+  },],
+});
+
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -190,5 +203,55 @@ annotate my.Roles with @(UI : {HeaderInfo : {
 annotate my.Roles with {
   ID     @title: '{i18n>ID}';
   name   @title: '{i18n>RoleName}';
-  parent @title: '{i18n>ParentRole}' @Common: { Text: parent.name };
 }
+
+////////////////////////////////////////////////////////////////////////////
+//
+//	EmployeeProjects Lists
+//
+annotate my.EmployeeProjects with @(
+  Common.SemanticKey : [ID],
+  UI                 : {
+    Identification  : [{ Value: ID }],
+    SelectionFields : [ID],
+    LineItem        : [
+      { Value: employee.name, Label: '{i18n>Employee}' },
+      { Value: role.name, Label: '{i18n>Role}' },
+      { Value: project.title, Label: '{i18n>Project}' },
+      { Value: project.startDate, Label: '{i18n>StartDate}' },
+      { Value: project.endDate, Label: '{i18n>EndDate}' }
+    ]
+  }
+) {
+  ID @Common: {
+    SemanticObject : 'EmployeeProjects',
+    Text: ID,
+    TextArrangement : #TextOnly
+  };
+};
+
+////////////////////////////////////////////////////////////////////////////
+//
+//	EmployeeProjects Details
+//
+annotate my.EmployeeProjects with @(UI : {HeaderInfo : {
+  TypeName       : '{i18n>EmployeeProject}',
+  TypeNamePlural : '{i18n>EmployeeProjects}',
+  Title          : { Value: ID },
+  Description    : { Value: project.title }
+},
+  Facets : [{
+    $Type: 'UI.ReferenceFacet',  Target: 'employee/@UI.LineItem'
+    },],
+});
+
+////////////////////////////////////////////////////////////////////////////
+//
+//	EmployeeProjects Elements
+//
+annotate my.EmployeeProjects with {
+  ID        @title: '{i18n>ID}';
+  employee  @title: '{i18n>Employee}' @Common: { Text: employee.name, TextArrangement: #TextOnly };
+  project   @title: '{i18n>Project}'  @Common: { Text: project.title, TextArrangement: #TextOnly };
+}
+

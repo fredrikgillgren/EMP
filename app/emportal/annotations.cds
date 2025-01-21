@@ -10,20 +10,22 @@ annotate AdminService.Employees with @(
   UI: {
     Facets: [
       {$Type: 'UI.ReferenceFacet', Label: '{i18n>General}', Target: '@UI.FieldGroup#General'},
-      {$Type: 'UI.ReferenceFacet', Label: '{i18n>Address}', Target: 'addresses/@UI.LineItem'},
-      {$Type: 'UI.ReferenceFacet', Label: '{i18n>Details}', Target: '@UI.FieldGroup#Details'},
+      {$Type: 'UI.ReferenceFacet', Label: '{i18n>Address}', Target: '@UI.FieldGroup#Address'},
+      {$Type: 'UI.ReferenceFacet', Label: '{i18n>Project Details}', Target: 'project/@UI.LineItem'},
       {$Type: 'UI.ReferenceFacet', Label: '{i18n>Admin}', Target: '@UI.FieldGroup#Admin'},
     ],
     FieldGroup#General: {
       Data: [
         {Value: name},
-        {Value: email},
+        {Value: email}
       ]
     },
-    FieldGroup#Details: {
+    FieldGroup#Address: {
       Data: [
-        {Value: role.name, Label: '{i18n>Roles}'}, // Add roles here
-        {Value: project.title, Label: '{i18n>Projects}'}, // Add projects here
+        {Value: addresses.street},
+        {Value: addresses.city},
+        {Value: addresses.state},
+        {Value: addresses.country}
       ]
     },
     FieldGroup#Admin: {
@@ -43,8 +45,14 @@ annotate AdminService.Employees with @(
 //
 
 annotate sap.capire.employeemanagement.Employees with @fiori.draft.enabled;
-annotate AdminService.Employees with @odata.draft.enabled;
+annotate sap.capire.employeemanagement.EmployeeProjects with @fiori.draft.enabled;
+annotate sap.capire.employeemanagement.Addresses with @fiori.draft.enabled; // Added draft annotation for Addresses
 
+annotate AdminService.Employees with @odata.draft.enabled;
+annotate AdminService.EmployeeProjects with @odata.draft.enabled;
+annotate AdminService.Addresses with @odata.draft.enabled; // Added draft annotation for Addresses
 
 // Workaround for Fiori popup for asking user to enter a new UUID on Create
 annotate AdminService.Employees with { ID @Core.Computed; }
+annotate AdminService.EmployeeProjects with { ID @Core.Computed; }
+annotate AdminService.Addresses with { ID @Core.Computed; } // Added computed ID annotation for Addresses

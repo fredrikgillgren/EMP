@@ -4,4 +4,5 @@ service AdminService @(requires:'any') {
   entity Projects as projection on my.Projects;
   entity Roles as projection on my.Roles;
   entity Addresses as projection on my.Addresses;
+  entity EmployeeProjects as projection on my.EmployeeProjects;
 }

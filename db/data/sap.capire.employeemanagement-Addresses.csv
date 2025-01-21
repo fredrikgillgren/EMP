@@ -1,5 +1,6 @@
-ID;street;city;state;zipCode;country;employee_ID
-1;123 Main St;New York;NY;10001;USA;1
-2;456 Market St;Sydney;NSW;2000;Australia;2
-3;789 High St;London;ENG;WC2N;UK;3
-4;101 Park Ave;New York;NY;10010;USA;4
+ID;street;city;state;country;employee_ID
+1;123 Main St;New York;NY;USA;1
+2;456 Market St;Sydney;NSW;Australia;2
+3;789 High St;London;ENG;UK;3
+4;101 Park Ave;New York;NY;USA;4
+5;1111 George St;Sydney;NSW;Australia;5
